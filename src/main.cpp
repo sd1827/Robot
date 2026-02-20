@@ -2,15 +2,95 @@
 #include <FEHIO.h>
 #include <FEHSD.h>
 #include <FEHUtility.h>
+#include <FEHMotor.h>
 
 // Declarations for analog optosensors
 AnalogInputPin right_opto(FEHIO::Pin8);
 AnalogInputPin center_opto(FEHIO::Pin10);
 AnalogInputPin left_opto(FEHIO::Pin12);
 
+// Declarations for motors
+FEHMotor right_motor(FEHMotor::Motor3, 9.0);
+FEHMotor left_motor(FEHMotor::Motor2, 9.0);
+
+#define LINE_ON_RIGHT 0
+#define ON_LINE_FIRST 1
+#define LINE_ON_LEFT 2
+#define ON_LINE_SECOND 3
+#define MIDDLE 4
+
 void ERCMain()
 {
-    
+     int state = MIDDLE;
+
+    while (true) { // I will follow this line forever!
+
+        switch(state) {
+
+        // If the line is on my right...
+
+        case LINE_ON_RIGHT: 
+
+        /* Set motor powers for right turn */
+        right_motor.SetPercent(15);
+
+
+        if ( right_opto.Value() > 2.5) 
+
+            state = ON_LINE_FIRST; // update a new state
+
+        }
+
+        break;
+
+        // If I am on the line, but zigging to the right...
+
+        case ON_LINE_FIRST:
+
+        /* Set motor powers for right turn */
+
+
+        if(right_opto.Value() < 2.5) 
+
+            state = LINE_ON_LEFT; // update a new state
+
+        }
+
+        break;
+
+
+        // If the line is on my left...
+
+        case LINE_ON_LEFT:
+
+        /* Mirror operation of LINE_ON_RIGHT state */
+        left_motor.SetPercent(15);
+
+
+        if (left_opto.Value() > 2.5) 
+
+            state = ON_LINE_SECOND;
+
+        }
+
+        break;
+
+
+        // If I am on the line, but zagging to the left...
+
+        case ON_LINE_SECOND:
+
+        /* Mirror operation of ON_LINE_FIRST state */
+
+        break;
+
+
+        default: // Error. Something is very wrong.
+
+        break;
+
+}
+}
     // int x, y; 
 
     // //Initialize the screen
@@ -109,5 +189,5 @@ void ERCMain()
     // // Print end message to screen
     // LCD.Clear(BLACK);
     // LCD.WriteLine("Test Finished");
-}
+
 
