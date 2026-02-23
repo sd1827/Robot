@@ -13,83 +13,195 @@ AnalogInputPin left_opto(FEHIO::Pin12);
 FEHMotor right_motor(FEHMotor::Motor3, 9.0);
 FEHMotor left_motor(FEHMotor::Motor2, 9.0);
 
-#define LINE_ON_RIGHT 0
-#define ON_LINE_FIRST 1
-#define LINE_ON_LEFT 2
-#define ON_LINE_SECOND 3
-#define MIDDLE 4
-
-void ERCMain()
-{
-     int state = MIDDLE;
-
-    while (true) { // I will follow this line forever!
-
-        switch(state) {
-
-        // If the line is on my right...
-
-        case LINE_ON_RIGHT: 
-
-        /* Set motor powers for right turn */
-        right_motor.SetPercent(15);
+enum LineStates {
+MIDDLE,
+RIGHT,
+LEFT
+};
 
 
-        if ( right_opto.Value() > 2.5) 
+void ERCMain() {
 
-            state = ON_LINE_FIRST; // update a new state
+int state = MIDDLE; // Set the initial state
 
-        }
+while (true) { // I will follow this line forever!
 
-        break;
+    switch(state) {
 
-        // If I am on the line, but zigging to the right...
+    // If I am in the middle of the line...
 
-        case ON_LINE_FIRST:
+    case MIDDLE:
 
-        /* Set motor powers for right turn */
+    // Set motor powers for driving straight
 
-
-        if(right_opto.Value() < 2.5) 
-
-            state = LINE_ON_LEFT; // update a new state
-
-        }
-
-        break;
+    /* Drive */
+    right_motor.SetPercent(15);
+    left_motor.SetPercent(15);
 
 
-        // If the line is on my left...
+    if (right_opto.Value() > 2.5 ) {
 
-        case LINE_ON_LEFT:
+        state = RIGHT; // update a new state
 
-        /* Mirror operation of LINE_ON_RIGHT state */
-        left_motor.SetPercent(15);
+    }   
 
+    /* Code for if left sensor is on the line */
+    if (left_opto.Value() > 2.5 ) {
 
-        if (left_opto.Value() > 2.5) 
+        state = LEFT; // update a new state
 
-            state = ON_LINE_SECOND;
+    }
 
-        }
-
-        break;
-
-
-        // If I am on the line, but zagging to the left...
-
-        case ON_LINE_SECOND:
-
-        /* Mirror operation of ON_LINE_FIRST state */
-
-        break;
+    break;
 
 
-        default: // Error. Something is very wrong.
+
+    // If the right sensor is on the line...
+
+    case RIGHT:
+
+    // Set motor powers for right turn
+    right_motor.SetPercent(8);
+    left_motor.SetPercent(15);
+
+    /* Drive */
+
+
+    if(right_opto.Value() < 2.5 ) {
+
+    /* update a new state */
+    state = MIDDLE; 
+
+    }
+
+    break;
+
+
+    // If the left sensor is on the line...
+
+    case LEFT:
+
+    /* Mirror operation of RIGHT state */
+    
+    // Set motor powers for left turn
+    right_motor.SetPercent(15);
+    left_motor.SetPercent(8);
+
+    /* Drive */
+
+
+    if(left_opto.Value() < 2.5 ) {
+
+    /* update a new state */
+    state = MIDDLE; 
+
+    }
+
+    break;
+
+
+    default: // Error. Something is very wrong.
 
         break;
 
 }
+
+// Sleep a bit
+
+}   
+
+// #define LINE_ON_RIGHT 0
+// #define ON_LINE_FIRST 1
+// #define LINE_ON_LEFT 2
+// #define ON_LINE_SECOND 3
+// #define MIDDLE 4
+
+// void ERCMain() {
+    
+// }
+// {
+//     int state = MIDDLE;
+
+//     while ()
+//     while (true) { // I will follow this line forever!
+
+//         switch(state) {
+
+//             case MIDDLE:
+
+//                 left_motor.SetPercent(20);
+//                 right_motor.SetPercent(20);
+
+//                 if (right_opto.Value() < 2.5) {
+//                     state = LINE_ON_RIGHT;
+//                 }
+
+//                 else if (left_opto.Value() < 2.5) {
+//                     state = LINE_ON_LEFT;
+//                 }
+                
+//                 break;
+
+//             // If the line is on my right...
+//             case LINE_ON_RIGHT: 
+
+//                 /* Set motor powers for right turn */
+//                 right_motor.SetPercent(7);
+//                 left_motor.SetPercent(20);
+
+
+//                 if (right_opto.Value() > 2.5) {
+//                     state = ON_LINE_FIRST; // update a new state
+//                 }
+
+//                 break;
+
+//             // If I am on the line, but zigging to the right...
+
+//             case ON_LINE_FIRST:
+
+//                 /* Set motor powers for right turn */
+//                 right_motor.SetPercent(20);
+//                 left_motor.SetPercent(7);
+
+//                 if(right_opto.Value() < 2.5) {
+//                     state = LINE_ON_LEFT; // update a new state
+//                 }
+//                 break;
+
+//             // If the line is on my left...
+
+//             case LINE_ON_LEFT:
+
+//             /* Mirror operation of LINE_ON_RIGHT state */
+//                 // Turn left
+//                 right_motor.SetPercent(20);
+//                 left_motor.SetPercent(7);
+
+//                 if (left_opto.Value() > 2.5) {
+//                     state = ON_LINE_SECOND;
+//             }
+//                 break;
+
+
+//             // If I am on the line, but zagging to the left...
+
+//             case ON_LINE_SECOND:
+
+//             /* Mirror operation of ON_LINE_FIRST state */
+
+//                 right_motor.SetPercent(7);
+//                 left_motor.SetPercent(20);
+
+//                 if (left_opto.Value() < 2.5) {
+//                     state = LINE_ON_RIGHT;
+//                 }
+//                 break;
+
+//             default: // Error. Something is very wrong.
+//                 break;
+//             }
+// }
 }
     // int x, y; 
 
